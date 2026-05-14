@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../lib/api";
 
+function unwrap(v: any): string | any[] {
+  if (typeof v !== "string") return v;
+  const s = v.trim();
+  if (s.startsWith("[") || s.startsWith("{")) {
+    try { return JSON.parse(s); } catch { return v; }
+  }
+  return v;
+}
 function renderValue(v: any, type: string) {
   if (v == null || v === "") return null;
   if (type === "record-reference") {
@@ -9,11 +17,15 @@ function renderValue(v: any, type: string) {
   if (type === "checkbox") return v ? "✓" : "";
   if (type === "currency") return `$${Number(v).toLocaleString()}`;
   if (type === "date" || type === "timestamp") return new Date(v).toLocaleDateString();
-  if (type === "status" || type === "select") {
-    return <span className="pill">{String(v)}</span>;
+  const u = unwrap(v);
+  if (Array.isArray(u)) {
+    return <>{u.map((x, i) => <span key={i} className="pill" style={{marginRight:4}}>{String(typeof x === "object" ? x.title || x.label || JSON.stringify(x) : x)}</span>)}</>;
   }
-  if (typeof v === "object") return JSON.stringify(v);
-  return String(v);
+  if (type === "status" || type === "select") {
+    return <span className="pill">{String(u)}</span>;
+  }
+  if (typeof u === "object") return u.title || u.label || JSON.stringify(u);
+  return String(u);
 }
 
 export function RecordTable({ objectSlug, listId, onOpenRecord }: any) {
