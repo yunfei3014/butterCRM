@@ -1,0 +1,30 @@
+{
+  "name": "pantry",
+  "version": "0.1.0",
+  "description": "Open-source CRM. The first Butterbase recipe.",
+  "icon": "🥫",
+  "tags": ["crm", "starter", "ai"],
+  "schema": "schema/schema.json",
+  "functions": [
+    { "name": "bootstrap",      "file": "functions/bootstrap.ts",      "trigger": { "type": "http", "auth": "none" } },
+    { "name": "objects",        "file": "functions/objects-manage.ts", "trigger": { "type": "http", "auth": "none" } },
+    { "name": "attributes",     "file": "functions/attributes-manage.ts", "trigger": { "type": "http", "auth": "none" } },
+    { "name": "records-query",  "file": "functions/records-query.ts",  "trigger": { "type": "http", "auth": "none" } },
+    { "name": "records-upsert", "file": "functions/records-upsert.ts", "trigger": { "type": "http", "auth": "none" } },
+    { "name": "lists",          "file": "functions/lists-manage.ts",   "trigger": { "type": "http", "auth": "none" } },
+    { "name": "notes-tasks",    "file": "functions/notes-tasks.ts",    "trigger": { "type": "http", "auth": "none" } },
+    { "name": "search",         "file": "functions/search.ts",         "trigger": { "type": "http", "auth": "none" }, "needs": ["BUTTERBASE_API_KEY"] },
+    { "name": "enrich",         "file": "functions/enrich.ts",         "trigger": { "type": "http", "auth": "none" }, "needs": ["BUTTERBASE_API_KEY"] },
+    { "name": "agent",          "file": "functions/agent.ts",          "trigger": { "type": "http", "auth": "none" }, "needs": ["BUTTERBASE_API_KEY"] },
+    { "name": "embed-records",  "file": "functions/embed-records.ts",  "trigger": { "type": "cron", "schedule": "*/5 * * * *" }, "needs": ["BUTTERBASE_API_KEY"] }
+  ],
+  "frontend": {
+    "path": "web",
+    "framework": "react-vite",
+    "build_command": "npm install && npm run build && npm run zip",
+    "output": "web/frontend.zip"
+  },
+  "post_deploy": [
+    { "action": "invoke_function", "name": "bootstrap" }
+  ]
+}

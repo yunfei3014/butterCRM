@@ -1,0 +1,182 @@
+{
+  "tables": {
+    "members": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "user_id": { "type": "uuid", "nullable": false, "unique": true },
+        "email": { "type": "text", "nullable": false },
+        "display_name": { "type": "text" },
+        "avatar_url": { "type": "text" },
+        "role": { "type": "text", "default": "'member'", "nullable": false },
+        "joined_at": { "type": "timestamptz", "default": "now()", "nullable": false }
+      }
+    },
+    "objects": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "slug": { "type": "text", "nullable": false, "unique": true },
+        "singular_noun": { "type": "text", "nullable": false },
+        "plural_noun": { "type": "text", "nullable": false },
+        "icon": { "type": "text" },
+        "is_system": { "type": "boolean", "default": "false", "nullable": false },
+        "created_at": { "type": "timestamptz", "default": "now()", "nullable": false },
+        "updated_at": { "type": "timestamptz", "default": "now()", "nullable": false }
+      }
+    },
+    "attributes": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "object_id": { "type": "uuid", "nullable": false, "references": { "table": "objects", "column": "id", "onDelete": "CASCADE" } },
+        "slug": { "type": "text", "nullable": false },
+        "name": { "type": "text", "nullable": false },
+        "type": { "type": "text", "nullable": false },
+        "config": { "type": "jsonb", "default": "'{}'::jsonb", "nullable": false },
+        "position": { "type": "integer", "default": "0", "nullable": false },
+        "is_system": { "type": "boolean", "default": "false", "nullable": false },
+        "is_required": { "type": "boolean", "default": "false", "nullable": false },
+        "is_unique": { "type": "boolean", "default": "false", "nullable": false },
+        "created_at": { "type": "timestamptz", "default": "now()", "nullable": false }
+      },
+      "indexes": {
+        "idx_attributes_object_slug": { "columns": ["object_id", "slug"], "unique": true },
+        "idx_attributes_object": { "columns": ["object_id"] }
+      }
+    },
+    "select_options": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "attribute_id": { "type": "uuid", "nullable": false, "references": { "table": "attributes", "column": "id", "onDelete": "CASCADE" } },
+        "value": { "type": "text", "nullable": false },
+        "label": { "type": "text", "nullable": false },
+        "color": { "type": "text" },
+        "position": { "type": "integer", "default": "0", "nullable": false }
+      },
+      "indexes": {
+        "idx_select_options_attr": { "columns": ["attribute_id"] },
+        "idx_select_options_unique": { "columns": ["attribute_id", "value"], "unique": true }
+      }
+    },
+    "records": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "object_id": { "type": "uuid", "nullable": false, "references": { "table": "objects", "column": "id", "onDelete": "CASCADE" } },
+        "search_text": { "type": "text", "default": "''", "nullable": false },
+        "embedding": { "type": "vector(1536)" },
+        "embedding_stale": { "type": "boolean", "default": "true", "nullable": false },
+        "created_at": { "type": "timestamptz", "default": "now()", "nullable": false },
+        "updated_at": { "type": "timestamptz", "default": "now()", "nullable": false },
+        "created_by": { "type": "uuid" }
+      },
+      "indexes": {
+        "idx_records_object": { "columns": ["object_id"] },
+        "idx_records_updated": { "columns": ["updated_at"] },
+        "idx_records_embedding_stale": { "columns": ["embedding_stale"] },
+        "idx_records_embedding": { "columns": ["embedding"], "method": "hnsw", "opclass": "vector_cosine_ops" }
+      }
+    },
+    "record_values": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "record_id": { "type": "uuid", "nullable": false, "references": { "table": "records", "column": "id", "onDelete": "CASCADE" } },
+        "attribute_id": { "type": "uuid", "nullable": false, "references": { "table": "attributes", "column": "id", "onDelete": "CASCADE" } },
+        "value_text": { "type": "text" },
+        "value_number": { "type": "numeric" },
+        "value_date": { "type": "timestamptz" },
+        "value_bool": { "type": "boolean" },
+        "value_json": { "type": "jsonb" },
+        "position": { "type": "integer", "default": "0", "nullable": false },
+        "created_at": { "type": "timestamptz", "default": "now()", "nullable": false }
+      },
+      "indexes": {
+        "idx_record_values_record_attr": { "columns": ["record_id", "attribute_id"] },
+        "idx_record_values_attr": { "columns": ["attribute_id"] },
+        "idx_record_values_text": { "columns": ["attribute_id", "value_text"] },
+        "idx_record_values_number": { "columns": ["attribute_id", "value_number"] },
+        "idx_record_values_date": { "columns": ["attribute_id", "value_date"] }
+      }
+    },
+    "record_references": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "from_record_id": { "type": "uuid", "nullable": false, "references": { "table": "records", "column": "id", "onDelete": "CASCADE" } },
+        "attribute_id": { "type": "uuid", "nullable": false, "references": { "table": "attributes", "column": "id", "onDelete": "CASCADE" } },
+        "to_record_id": { "type": "uuid", "nullable": false, "references": { "table": "records", "column": "id", "onDelete": "CASCADE" } },
+        "position": { "type": "integer", "default": "0", "nullable": false },
+        "created_at": { "type": "timestamptz", "default": "now()", "nullable": false }
+      },
+      "indexes": {
+        "idx_record_references_from": { "columns": ["from_record_id"] },
+        "idx_record_references_to": { "columns": ["to_record_id"] },
+        "idx_record_references_unique": { "columns": ["from_record_id", "attribute_id", "to_record_id"], "unique": true }
+      }
+    },
+    "lists": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "parent_object_id": { "type": "uuid", "nullable": false, "references": { "table": "objects", "column": "id", "onDelete": "CASCADE" } },
+        "slug": { "type": "text", "nullable": false },
+        "name": { "type": "text", "nullable": false },
+        "icon": { "type": "text" },
+        "view_config": { "type": "jsonb", "default": "'{}'::jsonb", "nullable": false },
+        "created_at": { "type": "timestamptz", "default": "now()", "nullable": false },
+        "updated_at": { "type": "timestamptz", "default": "now()", "nullable": false },
+        "created_by": { "type": "uuid" }
+      },
+      "indexes": {
+        "idx_lists_parent": { "columns": ["parent_object_id"] },
+        "idx_lists_slug": { "columns": ["slug"], "unique": true }
+      }
+    },
+    "list_entries": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "list_id": { "type": "uuid", "nullable": false, "references": { "table": "lists", "column": "id", "onDelete": "CASCADE" } },
+        "record_id": { "type": "uuid", "nullable": false, "references": { "table": "records", "column": "id", "onDelete": "CASCADE" } },
+        "position": { "type": "integer", "default": "0", "nullable": false },
+        "stage": { "type": "text" },
+        "created_at": { "type": "timestamptz", "default": "now()", "nullable": false }
+      },
+      "indexes": {
+        "idx_list_entries_list": { "columns": ["list_id"] },
+        "idx_list_entries_record": { "columns": ["record_id"] },
+        "idx_list_entries_unique": { "columns": ["list_id", "record_id"], "unique": true }
+      }
+    },
+    "notes": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "parent_object_id": { "type": "uuid", "references": { "table": "objects", "column": "id", "onDelete": "CASCADE" } },
+        "parent_record_id": { "type": "uuid", "references": { "table": "records", "column": "id", "onDelete": "CASCADE" } },
+        "title": { "type": "text", "default": "''", "nullable": false },
+        "body_md": { "type": "text", "default": "''", "nullable": false },
+        "created_at": { "type": "timestamptz", "default": "now()", "nullable": false },
+        "updated_at": { "type": "timestamptz", "default": "now()", "nullable": false },
+        "created_by": { "type": "uuid" }
+      },
+      "indexes": {
+        "idx_notes_record": { "columns": ["parent_record_id"] },
+        "idx_notes_object": { "columns": ["parent_object_id"] }
+      }
+    },
+    "tasks": {
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "gen_random_uuid()" },
+        "parent_object_id": { "type": "uuid", "references": { "table": "objects", "column": "id", "onDelete": "CASCADE" } },
+        "parent_record_id": { "type": "uuid", "references": { "table": "records", "column": "id", "onDelete": "CASCADE" } },
+        "title": { "type": "text", "nullable": false },
+        "body_md": { "type": "text", "default": "''", "nullable": false },
+        "due_at": { "type": "timestamptz" },
+        "completed_at": { "type": "timestamptz" },
+        "assignee_id": { "type": "uuid" },
+        "created_at": { "type": "timestamptz", "default": "now()", "nullable": false },
+        "updated_at": { "type": "timestamptz", "default": "now()", "nullable": false },
+        "created_by": { "type": "uuid" }
+      },
+      "indexes": {
+        "idx_tasks_record": { "columns": ["parent_record_id"] },
+        "idx_tasks_assignee_open": { "columns": ["assignee_id", "completed_at"] },
+        "idx_tasks_due": { "columns": ["due_at"] }
+      }
+    }
+  }
+}
