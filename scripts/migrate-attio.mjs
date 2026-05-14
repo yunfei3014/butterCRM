@@ -215,24 +215,24 @@ async function migrateRecords(attioObjSlug) {
     payloads.push({ attioId, values });
   }
 
-  // Parallel upserts in batches of 10
-  const CONCURRENCY = 10;
-  for (let i = 0; i < payloads.length; i += CONCURRENCY) {
-    const batch = payloads.slice(i, i + CONCURRENCY);
-    const results = await Promise.allSettled(
-      batch.map(p => bbCall("records-upsert", { object: attioObjSlug, values: p.values }))
-    );
-    for (let j = 0; j < results.length; j++) {
-      const r = results[j];
-      if (r.status === "fulfilled") {
-        RECORD_MAP[batch[j].attioId] = r.value.record_id;
+  // Bulk upsert in batches of 50 (single-transaction fn call per batch)
+  const BATCH = 50;
+  for (let i = 0; i < payloads.length; i += BATCH) {
+    const batch = payloads.slice(i, i + BATCH);
+    try {
+      const r = await bbCall("records-bulk-upsert", {
+        object: attioObjSlug,
+        records: batch.map(p => ({ values: p.values }))
+      });
+      for (let j = 0; j < r.record_ids.length; j++) {
+        RECORD_MAP[batch[j].attioId] = r.record_ids[j];
         inserted++;
-      } else {
-        console.warn(`    rec ${batch[j].attioId.slice(0, 8)} failed: ${r.reason.message.slice(0, 100)}`);
-        skipped++;
       }
+      console.log(`    ${inserted}/${payloads.length} (+${r.record_ids.length} in batch)`);
+    } catch (e) {
+      console.warn(`    batch ${i}-${i + BATCH} failed: ${e.message.slice(0, 150)}`);
+      skipped += batch.length;
     }
-    if (inserted > 0 && inserted % 100 < CONCURRENCY) console.log(`    ${inserted}/${payloads.length}…`);
   }
   console.log(`  ${attioObjSlug}: inserted=${inserted}, skipped=${skipped}, refs_deferred=${deferredRefs.length}`);
   return deferredRefs;

@@ -38,7 +38,20 @@ export function RecordTable({ objectSlug, listId, onOpenRecord }: any) {
     );
   }
 
-  const columns = data.attributes.slice(0, 8);
+  // Pick first 8 columns weighted by data density so populated attrs surface first
+  const fillCount: Record<string, number> = {};
+  for (const r of data.records) {
+    for (const [k, v] of Object.entries(r.values)) {
+      if (v != null && v !== "") fillCount[k] = (fillCount[k] || 0) + 1;
+    }
+  }
+  // Always keep "name" first if present
+  const nameAttr = data.attributes.find((a: any) => a.slug === "name");
+  const others = data.attributes
+    .filter((a: any) => a.slug !== "name")
+    .map((a: any) => ({ ...a, fill: fillCount[a.slug] || 0 }))
+    .sort((a: any, b: any) => b.fill - a.fill);
+  const columns = [nameAttr, ...others].filter(Boolean).slice(0, 8);
 
   return (
     <div className="table-wrap">
