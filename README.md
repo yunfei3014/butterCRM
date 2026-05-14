@@ -1,8 +1,8 @@
-# 🥫 Pantry
+# 🧈 butterCRM
 
 **Open-source CRM, built on [Butterbase](https://butterbase.ai).**
 
-Pantry is an Attio-style flexible CRM where everything is data: people, companies, deals, or any custom object you invent. Records have typed attributes. Lists let you filter and segment. Notes and tasks attach to anything. And AI is wired in from day one — semantic search + an enrichment agent + a per-record assistant for drafting outreach.
+butterCRM is an Attio-style flexible CRM where everything is data: people, companies, deals, or any custom object you invent. Records have typed attributes. Lists let you filter and segment. Notes and tasks attach to anything. And AI is wired in from day one — semantic search + an enrichment agent + a per-record assistant for drafting outreach.
 
 This is also the **first recipe** in the Butterbase recipe ecosystem. The entire stack — schema, functions, frontend — lives in this repo and deploys to your own Butterbase account with one command.
 
@@ -48,8 +48,8 @@ All open source. All yours. No SaaS lock-in.
 ## Quick deploy
 
 ```bash
-git clone https://github.com/yunfei3014/pantry
-cd pantry
+git clone https://github.com/yunfei3014/butterCRM
+cd butterCRM
 ./scripts/deploy.sh
 ```
 
@@ -61,7 +61,7 @@ The script will:
 5. Build and upload the frontend
 6. Print your live URL
 
-Requires the [Butterbase MCP](https://butterbase.ai) configured in your Claude Code. (We use MCP so AI agents can deploy and operate Pantry end-to-end.)
+Requires the [Butterbase MCP](https://butterbase.ai) configured in your Claude Code. (We use MCP so AI agents can deploy and operate butterCRM end-to-end.)
 
 ## Data model
 
@@ -97,9 +97,25 @@ All serverless functions are at `https://api.butterbase.ai/v1/{app_id}/fn/{name}
 | `agent` | POST | Per-record AI chat (drafts, summaries, follow-ups) |
 | `embed-records` | cron | Regenerate embeddings every 5 min |
 
-## Why "Pantry"?
+## Why "butterCRM"?
 
-Butterbase is your kitchen. Pantry is where you keep what you've gathered. It's the first **recipe** — a fully-cooked starter app you can clone and customize.
+Butterbase is your platform. butterCRM is the recipe. It's the first fully-cooked starter app — clone, customize, ship.
+
+## Migrate from Attio
+
+If you already use Attio, you can pull your workspace into butterCRM in one command:
+
+```bash
+ATTIO_API_TOKEN=your_token node scripts/migrate-attio.mjs --limit=2000
+```
+
+The script:
+- Mirrors Attio objects + custom attributes into butterCRM
+- Pulls records (parallelized, 10-way concurrency) with all attribute values preserved
+- Resolves record-to-record references in a second pass
+- Migrates lists + entries
+
+Works against any Butterbase app URL — pass `--app-url=https://api.butterbase.ai/v1/{app_id}`.
 
 ## Roadmap (post-v0.1)
 

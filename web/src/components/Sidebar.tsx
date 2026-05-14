@@ -9,8 +9,8 @@ export function Sidebar({ objects, lists, activeObject, activeListId, onSelectOb
   return (
     <div className="sidebar">
       <div className="brand">
-        <span className="logo">🥫</span>
-        <span>Pantry</span>
+        <span className="logo">🧈</span>
+        <span>butterCRM</span>
       </div>
 
       <div className="section-label">Objects</div>
