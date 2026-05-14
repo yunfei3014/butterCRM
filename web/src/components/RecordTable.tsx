@@ -38,16 +38,19 @@ export function RecordTable({ objectSlug, listId, onOpenRecord }: any) {
     );
   }
 
-  // Pick first 8 columns weighted by data density so populated attrs surface first
+  // Hide noisy system-y columns + raw actor refs
+  const HIDE_SLUGS = new Set(["record_id", "created_at", "created_by", "updated_at", "updated_by", "id"]);
+  const HIDE_TYPES = new Set(["actor-reference"]);
+
   const fillCount: Record<string, number> = {};
   for (const r of data.records) {
     for (const [k, v] of Object.entries(r.values)) {
       if (v != null && v !== "") fillCount[k] = (fillCount[k] || 0) + 1;
     }
   }
-  // Always keep "name" first if present
-  const nameAttr = data.attributes.find((a: any) => a.slug === "name");
-  const others = data.attributes
+  const visibleAttrs = data.attributes.filter((a: any) => !HIDE_SLUGS.has(a.slug) && !HIDE_TYPES.has(a.type));
+  const nameAttr = visibleAttrs.find((a: any) => a.slug === "name");
+  const others = visibleAttrs
     .filter((a: any) => a.slug !== "name")
     .map((a: any) => ({ ...a, fill: fillCount[a.slug] || 0 }))
     .sort((a: any, b: any) => b.fill - a.fill);

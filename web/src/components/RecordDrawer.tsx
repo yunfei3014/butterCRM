@@ -106,7 +106,7 @@ export function RecordDrawer({ recordId, objectSlug, onClose, onUpdate, flash }:
           <button onClick={onClose}>✕</button>
         </div>
         <div className="drawer-body">
-          {attrs.map(a => (
+          {attrs.filter(a => !["record_id","created_at","created_by","updated_at","updated_by","id"].includes(a.slug) && a.type !== "actor-reference").map(a => (
             <div className="field-row" key={a.id}>
               <div className="label">{a.name}</div>
               <div className="value">
