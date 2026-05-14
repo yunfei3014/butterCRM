@@ -26,14 +26,34 @@ const ATTIO_BASE = "https://api.attio.com/v2";
 const HDR = { Authorization: `Bearer ${ATTIO_API_TOKEN}`, "Content-Type": "application/json" };
 
 async function attioGet(path) {
-  const r = await fetch(`${ATTIO_BASE}${path}`, { headers: HDR });
-  if (!r.ok) throw new Error(`Attio GET ${path} ${r.status}: ${await r.text()}`);
-  return r.json();
+  let attempt = 0;
+  while (true) {
+    const r = await fetch(`${ATTIO_BASE}${path}`, { headers: HDR });
+    if (r.ok) return r.json();
+    if (r.status === 429 && attempt < 6) {
+      const wait = Math.min(60000, 2000 * Math.pow(2, attempt));
+      console.log(`    rate limited, sleep ${wait}ms…`);
+      await new Promise(res => setTimeout(res, wait));
+      attempt++;
+      continue;
+    }
+    throw new Error(`Attio GET ${path} ${r.status}: ${await r.text()}`);
+  }
 }
 async function attioPost(path, body) {
-  const r = await fetch(`${ATTIO_BASE}${path}`, { method: "POST", headers: HDR, body: JSON.stringify(body) });
-  if (!r.ok) throw new Error(`Attio POST ${path} ${r.status}: ${await r.text()}`);
-  return r.json();
+  let attempt = 0;
+  while (true) {
+    const r = await fetch(`${ATTIO_BASE}${path}`, { method: "POST", headers: HDR, body: JSON.stringify(body) });
+    if (r.ok) return r.json();
+    if (r.status === 429 && attempt < 6) {
+      const wait = Math.min(60000, 2000 * Math.pow(2, attempt));
+      console.log(`    rate limited, sleep ${wait}ms…`);
+      await new Promise(res => setTimeout(res, wait));
+      attempt++;
+      continue;
+    }
+    throw new Error(`Attio POST ${path} ${r.status}: ${await r.text()}`);
+  }
 }
 async function bbCall(fn, body, method = "POST") {
   const r = await fetch(`${BB_URL}/fn/${fn}`, {
@@ -240,39 +260,31 @@ async function migrateRecords(attioObjSlug) {
 
 async function resolveReferences(allDeferred) {
   console.log(`Resolving ${allDeferred.length} record references…`);
-  let resolved = 0, missed = 0;
-  // Group by from_record so we can batch updates
-  const byFrom = {};
+  // Map to butterCRM IDs + flatten
+  const refs = [];
+  let missed = 0;
   for (const d of allDeferred) {
     const fromBbId = RECORD_MAP[d.attio_rec_id];
     const toBbId = RECORD_MAP[d.attio_ref_id];
     if (!fromBbId || !toBbId) { missed++; continue; }
-    const key = `${fromBbId}|${d.slug}|${d.attio_ref_object}`;
-    if (!byFrom[key]) byFrom[key] = { from: fromBbId, slug: d.slug, object_slug: d.attio_ref_object, refs: [] };
-    byFrom[key].refs.push(toBbId);
+    refs.push({ from: fromBbId, attr_slug: d.slug, to: toBbId });
   }
-  // Group by from record + collect slug→[ids]
-  const updates = {};
-  for (const g of Object.values(byFrom)) {
-    if (!updates[g.from]) updates[g.from] = { object_slug: null, values: {} };
-    updates[g.from].values[g.slug] = g.refs.length === 1 ? g.refs[0] : g.refs;
-  }
-  // Determine object_slug per record by querying butterCRM (simple: use any object)
-  // Faster: we know which attio object each from belongs to from upstream — but lost it here.
-  // Workaround: query records to look up object_id per record. Cheap: bulk.
-  // Simpler: try all 5 object slugs in turn until upsert succeeds; not great but works.
-  // Even simpler: track from_object during pass 1. Let's pass that through.
-  for (const [bbId, upd] of Object.entries(updates)) {
-    let ok = false;
-    for (const trySlug of OBJECTS_TO_MIGRATE) {
-      try {
-        await bbCall("records-upsert", { object: trySlug, record_id: bbId, values: upd.values });
-        resolved++; ok = true; break;
-      } catch (e) { /* try next */ }
+  console.log(`  mapped: ${refs.length}, unmapped: ${missed}`);
+
+  // Bulk insert in chunks via single-call refs-bulk fn
+  const CHUNK = 2000;
+  let inserted = 0;
+  for (let i = 0; i < refs.length; i += CHUNK) {
+    const chunk = refs.slice(i, i + CHUNK);
+    try {
+      const r = await bbCall("refs-bulk", { refs: chunk });
+      inserted += r.inserted;
+      console.log(`    ${inserted}/${refs.length} refs inserted`);
+    } catch (e) {
+      console.warn(`  bulk refs chunk failed: ${e.message.slice(0, 150)}`);
     }
-    if (!ok) missed++;
   }
-  console.log(`  refs resolved=${resolved}, missed=${missed}`);
+  console.log(`  refs done: inserted=${inserted}`);
 }
 
 async function migrateLists() {
@@ -314,15 +326,25 @@ async function main() {
   const objs = await attioGet("/objects");
   const attioObjs = objs.data.filter(o => OBJECTS_TO_MIGRATE.includes(o.api_slug));
 
-  const allDeferred = [];
+  // Ensure objects + attrs sequentially (cheap, avoids slug-create races)
   for (const o of attioObjs) {
-    console.log(`\n=== ${o.api_slug} (${o.plural_noun}) ===`);
+    console.log(`Bootstrap ${o.api_slug}…`);
     await ensureObject(o);
     const attrsAdded = await ensureAttributes(o.api_slug);
     console.log(`  attrs added: ${attrsAdded}`);
-    const deferred = await migrateRecords(o.api_slug);
-    allDeferred.push(...deferred);
   }
+
+  // Migrate records in parallel — one worker per object
+  console.log(`\nMigrating ${attioObjs.length} objects in parallel…`);
+  const perObjResults = await Promise.all(
+    attioObjs.map(async o => {
+      console.log(`[${o.api_slug}] starting…`);
+      const deferred = await migrateRecords(o.api_slug);
+      console.log(`[${o.api_slug}] done`);
+      return deferred;
+    })
+  );
+  const allDeferred = perObjResults.flat();
 
   await resolveReferences(allDeferred);
   await migrateLists();

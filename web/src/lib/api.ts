@@ -1,4 +1,4 @@
-const BASE = (import.meta.env.VITE_API_URL as string) || "https://api.butterbase.ai/v1/app_sf5izitigmil";
+const BASE = (import.meta.env.VITE_API_URL as string) || "https://api.butterbase.ai/v1/app_hz4h4bcpu63n";
 
 async function call(path: string, body?: any, method: string = "POST") {
   const res = await fetch(`${BASE}/fn/${path}`, {
