@@ -6,6 +6,7 @@ import { RecordTable } from "./components/RecordTable";
 import { RecordDrawer } from "./components/RecordDrawer";
 import { NewObjectModal } from "./components/NewObjectModal";
 import { ChatPanel } from "./components/ChatPanel";
+import { AIBanner } from "./components/AIBanner";
 import { Login } from "./components/Login";
 import { getSession, logout, isAllowedDomain } from "./lib/auth";
 
@@ -34,7 +35,8 @@ function AuthedApp({ session }: any) {
   const [openRecordId, setOpenRecordId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showNewObject, setShowNewObject] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+  // AI chat is the default entry point — opens automatically until the user dismisses the banner
+  const [chatOpen, setChatOpen] = useState(localStorage.getItem("buttercrm.banner.ai.dismissed") !== "1");
   const [toast, setToast] = useState<string | null>(null);
 
   const reload = useCallback(() => setRefreshKey(k => k + 1), []);
@@ -79,6 +81,7 @@ function AuthedApp({ session }: any) {
             reload();
           }}
         />
+        <AIBanner onOpenChat={() => setChatOpen(true)} />
         <div className="content">
           <RecordTable
             key={`${activeObject}-${activeListId}-${refreshKey}`}
@@ -100,8 +103,9 @@ function AuthedApp({ session }: any) {
       {showNewObject && (
         <NewObjectModal onClose={() => setShowNewObject(false)} onCreated={() => { setShowNewObject(false); reload(); }} />
       )}
-      <button className="chat-fab" onClick={() => setChatOpen(true)} title="Ask butterCRM">
-        <span style={{ fontSize: 20 }}>💬</span>
+      <button className="chat-fab pulse" onClick={() => setChatOpen(true)} title="Ask butterCRM AI">
+        <span style={{ fontSize: 18, marginRight: 6 }}>💬</span>
+        <span className="chat-fab-label">Ask AI</span>
       </button>
       <ChatPanel
         open={chatOpen}
