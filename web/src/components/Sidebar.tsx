@@ -1,4 +1,5 @@
 import React from "react";
+import { getSession, logout } from "../lib/auth";
 
 const ICON: Record<string, string> = {
   user: "👤", building: "🏢", "currency-dollar": "💰", tag: "🏷️",
@@ -6,6 +7,7 @@ const ICON: Record<string, string> = {
 };
 
 export function Sidebar({ objects, lists, activeObject, activeListId, onSelectObject, onSelectList, onNewObject }: any) {
+  const session = getSession();
   return (
     <div className="sidebar">
       <div className="brand">
@@ -39,6 +41,12 @@ export function Sidebar({ objects, lists, activeObject, activeListId, onSelectOb
           <span className="count">{l.entry_count}</span>
         </button>
       ))}
+      {session && (
+        <div className="sidebar-user">
+          <div className="email">{session.user.display_name || session.user.email}</div>
+          <button onClick={logout}>Sign out</button>
+        </div>
+      )}
     </div>
   );
 }

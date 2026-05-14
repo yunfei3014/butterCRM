@@ -5,8 +5,27 @@ import { Topbar } from "./components/Topbar";
 import { RecordTable } from "./components/RecordTable";
 import { RecordDrawer } from "./components/RecordDrawer";
 import { NewObjectModal } from "./components/NewObjectModal";
+import { Login } from "./components/Login";
+import { getSession, logout, isAllowedDomain } from "./lib/auth";
 
 export function App() {
+  const [session, setSession] = useState(getSession());
+  if (!session) return <Login onSession={setSession} />;
+  if (!isAllowedDomain(session.user.email)) {
+    return (
+      <div className="login-wrap">
+        <div className="login-card">
+          <h1>🚫 Access denied</h1>
+          <p>This workspace is limited to <strong>@betauniversity.org</strong> and <strong>@betafund.ai</strong>.</p>
+          <button className="btn btn-accent" onClick={logout}>Sign out</button>
+        </div>
+      </div>
+    );
+  }
+  return <AuthedApp session={session} />;
+}
+
+function AuthedApp({ session }: any) {
   const [objects, setObjects] = useState<any[]>([]);
   const [lists, setLists] = useState<any[]>([]);
   const [activeObject, setActiveObject] = useState<string>("people");

@@ -1,11 +1,20 @@
+import { getToken, logout } from "./auth";
+
 const BASE = (import.meta.env.VITE_API_URL as string) || "https://api.butterbase.ai/v1/app_hz4h4bcpu63n";
+
+function authHeaders(): Record<string, string> {
+  const t = getToken();
+  return t ? { Authorization: `Bearer ${t}` } : {};
+}
 
 async function call(path: string, body?: any, method: string = "POST") {
   const res = await fetch(`${BASE}/fn/${path}`, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: body ? JSON.stringify(body) : undefined
   });
+  if (res.status === 401) { logout(); throw new Error("session expired"); }
+  if (res.status === 403) throw new Error("forbidden — domain not allowed");
   if (!res.ok) {
     const t = await res.text();
     throw new Error(`${path} ${res.status}: ${t}`);
@@ -15,7 +24,9 @@ async function call(path: string, body?: any, method: string = "POST") {
 
 async function callGet(path: string, params: Record<string, string> = {}) {
   const q = new URLSearchParams(params).toString();
-  const res = await fetch(`${BASE}/fn/${path}${q ? "?" + q : ""}`);
+  const res = await fetch(`${BASE}/fn/${path}${q ? "?" + q : ""}`, { headers: { ...authHeaders() } });
+  if (res.status === 401) { logout(); throw new Error("session expired"); }
+  if (res.status === 403) throw new Error("forbidden — domain not allowed");
   if (!res.ok) throw new Error(`${path} ${res.status}: ${await res.text()}`);
   return res.json();
 }

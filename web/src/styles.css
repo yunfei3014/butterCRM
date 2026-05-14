@@ -415,3 +415,60 @@ a { color: var(--accent); text-decoration: none; }
   background: var(--text); color: var(--bg); padding: 10px 14px; border-radius: 6px;
   font-size: 13px; z-index: 50; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
+
+/* login */
+.login-wrap {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fafaf7 0%, #fef0e6 100%);
+}
+.login-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  width: 380px;
+  max-width: 92vw;
+  box-shadow: 0 20px 60px rgba(234, 115, 50, 0.08);
+}
+.login-brand { text-align: center; margin-bottom: 22px; }
+.login-brand h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 4px 0 2px; }
+.login-brand .muted { color: var(--text-3); font-size: 12px; }
+.login-tabs { display: flex; gap: 4px; margin-bottom: 14px; }
+.login-tabs button {
+  flex: 1; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: var(--text-3); background: transparent;
+}
+.login-tabs button.active { background: var(--selected); color: var(--accent); font-weight: 600; }
+.login-form { display: flex; flex-direction: column; gap: 10px; }
+.login-form .field { display: flex; flex-direction: column; gap: 4px; }
+.login-form label { font-size: 11px; color: var(--text-2); font-weight: 500; }
+.login-form input {
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 13px; background: #fff;
+}
+.login-form input:focus { border-color: var(--accent); outline: none; }
+.login-error {
+  background: #fee; color: #a00; padding: 8px 10px; border-radius: 6px; font-size: 12px;
+}
+.login-submit { margin-top: 6px; justify-content: center; padding: 9px; font-size: 14px; }
+.login-note {
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text-3); text-align: center;
+}
+
+.sidebar-user {
+  margin-top: auto;
+  padding: 12px 10px 6px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+}
+.sidebar-user .email { color: var(--text-2); margin-bottom: 4px; word-break: break-all; }
+.sidebar-user button {
+  color: var(--text-3); font-size: 11px;
+  text-decoration: underline;
+}
+.sidebar-user button:hover { color: var(--accent); }
