@@ -29,9 +29,9 @@ export function Login({ onSession }: any) {
     <div className="login-wrap">
       <div className="login-card">
         <div className="login-brand">
-          <span style={{ fontSize: 36 }}>🧈</span>
+          <div className="login-logo">🧈</div>
           <h1>butterCRM</h1>
-          <div className="muted">Open CRM on Butterbase · Beta Fund workspace</div>
+          <div className="muted">Beta Fund · CRM on Butterbase</div>
         </div>
         <div className="login-tabs">
           <button className={mode === "login" ? "active" : ""} onClick={() => setMode("login")}>Sign in</button>

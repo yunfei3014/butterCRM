@@ -43,15 +43,38 @@ a { color: var(--accent); text-decoration: none; }
   gap: 4px;
 }
 .sidebar .brand {
-  font-weight: 700;
-  font-size: 16px;
-  padding: 8px 10px 14px;
+  padding: 10px 10px 18px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   letter-spacing: -0.01em;
 }
-.sidebar .brand .logo { font-size: 20px; }
+.sidebar .brand .logo-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fff4d2 0%, #ffce80 60%, #ea7332 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  box-shadow: 0 1px 3px rgba(234, 115, 50, 0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  flex-shrink: 0;
+}
+.sidebar .brand .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+.sidebar .brand .brand-title {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.015em;
+}
+.sidebar .brand .brand-sub {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: 1px;
+}
 .sidebar .section-label {
   font-size: 11px;
   font-weight: 600;
@@ -435,8 +458,20 @@ a { color: var(--accent); text-decoration: none; }
   box-shadow: 0 20px 60px rgba(234, 115, 50, 0.08);
 }
 .login-brand { text-align: center; margin-bottom: 22px; }
-.login-brand h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 4px 0 2px; }
-.login-brand .muted { color: var(--text-3); font-size: 12px; }
+.login-brand .login-logo {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 10px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fff4d2 0%, #ffce80 55%, #ea7332 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  box-shadow: 0 6px 14px rgba(234, 115, 50, 0.25), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.login-brand h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin: 4px 0 2px; }
+.login-brand .muted { color: var(--text-3); font-size: 12px; font-weight: 500; letter-spacing: 0.02em; }
 .login-tabs { display: flex; gap: 4px; margin-bottom: 14px; }
 .login-tabs button {
   flex: 1; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: 500;
