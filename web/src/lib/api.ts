@@ -70,5 +70,6 @@ export const api = {
   search: (q: string, object_slug?: string) => call("search", { q, object_slug }),
   enrich: (record_id: string) => call("enrich", { record_id }),
   agent: (record_id: string, prompt: string) => call("agent", { record_id, prompt }),
+  ask: (query: string, history: any[] = [], object_slug?: string) => call("ask", { query, history, object_slug }),
   bootstrap: () => call("bootstrap", {})
 };

@@ -5,6 +5,7 @@ import { Topbar } from "./components/Topbar";
 import { RecordTable } from "./components/RecordTable";
 import { RecordDrawer } from "./components/RecordDrawer";
 import { NewObjectModal } from "./components/NewObjectModal";
+import { ChatPanel } from "./components/ChatPanel";
 import { Login } from "./components/Login";
 import { getSession, logout, isAllowedDomain } from "./lib/auth";
 
@@ -33,6 +34,7 @@ function AuthedApp({ session }: any) {
   const [openRecordId, setOpenRecordId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showNewObject, setShowNewObject] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const reload = useCallback(() => setRefreshKey(k => k + 1), []);
@@ -98,6 +100,18 @@ function AuthedApp({ session }: any) {
       {showNewObject && (
         <NewObjectModal onClose={() => setShowNewObject(false)} onCreated={() => { setShowNewObject(false); reload(); }} />
       )}
+      <button className="chat-fab" onClick={() => setChatOpen(true)} title="Ask butterCRM">
+        <span style={{ fontSize: 20 }}>💬</span>
+      </button>
+      <ChatPanel
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        onOpenRecord={(id: string, objSlug?: string) => {
+          if (objSlug) setActiveObject(objSlug);
+          setOpenRecordId(id);
+          setChatOpen(false);
+        }}
+      />
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
