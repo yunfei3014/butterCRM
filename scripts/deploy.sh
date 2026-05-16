@@ -5,7 +5,7 @@
 # Steps:
 #   1) Create Butterbase app (pantry-crm or custom name)
 #   2) Apply schema from schema/schema.json
-#   3) Deploy all 11 functions (functions/*.ts)
+#   3) Deploy all 12 functions (functions/*.ts)
 #   4) Generate AI key + set as env var on AI fns
 #   5) Set CORS origins
 #   6) Build frontend (cd web && npm install && npm run build && npm run zip)

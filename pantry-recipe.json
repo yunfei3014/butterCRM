@@ -14,6 +14,7 @@
     { "name": "lists",          "file": "functions/lists-manage.ts",   "trigger": { "type": "http", "auth": "required" } },
     { "name": "notes-tasks",    "file": "functions/notes-tasks.ts",    "trigger": { "type": "http", "auth": "required" } },
     { "name": "search",         "file": "functions/search.ts",         "trigger": { "type": "http", "auth": "required" }, "needs": ["BUTTERBASE_API_KEY"] },
+    { "name": "people-search",  "file": "functions/people-search.ts",  "trigger": { "type": "http", "auth": "required" }, "needs": ["BUTTERBASE_API_KEY"] },
     { "name": "enrich",         "file": "functions/enrich.ts",         "trigger": { "type": "http", "auth": "required" }, "needs": ["BUTTERBASE_API_KEY"] },
     { "name": "agent",          "file": "functions/agent.ts",          "trigger": { "type": "http", "auth": "required" }, "needs": ["BUTTERBASE_API_KEY"] },
     { "name": "embed-records",  "file": "functions/embed-records.ts",  "trigger": { "type": "cron", "schedule": "*/5 * * * *" }, "needs": ["BUTTERBASE_API_KEY"] }
