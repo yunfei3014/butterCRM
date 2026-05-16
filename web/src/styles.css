@@ -816,6 +816,7 @@ a { color: var(--accent); text-decoration: none; }
   padding: 7px 9px; font-size: 13px; background: var(--bg);
 }
 .ps-row .btn-accent { margin-left: auto; }
+.ps-seg { width: 100%; }
 .ps-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .ps-chip {
   font-size: 11.5px; padding: 4px 10px; border-radius: 999px;

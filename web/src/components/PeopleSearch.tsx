@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { api } from "../lib/api";
 
 type Person = {
@@ -46,10 +46,19 @@ export function PeopleSearch({ open, onClose, onOpenRecord }: any) {
   const [busy, setBusy] = useState(false);
   const [people, setPeople] = useState<Person[] | null>(null);
   const [status, setStatus] = useState("");
+  const [segments, setSegments] = useState<{ id: string; name: string }[]>([]);
+  const [segment, setSegment] = useState("");
+
+  // Load the segment list once when the drawer first opens.
+  useEffect(() => {
+    if (open && !segments.length) {
+      api.peopleSearchSegments().then((d) => setSegments(d.segments || [])).catch(() => {});
+    }
+  }, [open]);
 
   const run = async (q?: string, uc?: string) => {
     const qq = (q ?? query).trim();
-    if (!qq || busy) return;
+    if ((!qq && !segment) || busy) return;
     if (q !== undefined) {
       setQuery(q);
       setUseCase(uc || "");
@@ -60,7 +69,7 @@ export function PeopleSearch({ open, onClose, onOpenRecord }: any) {
     setPeople(null);
     const t0 = Date.now();
     try {
-      const r = await api.peopleSearch(qq, ucc, topK);
+      const r = await api.peopleSearch(qq, ucc, topK, segment);
       const list: Person[] = r.people || [];
       setPeople(list);
       setStatus(
@@ -108,6 +117,19 @@ export function PeopleSearch({ open, onClose, onOpenRecord }: any) {
             placeholder="Use case / context (optional) — what the fit score is judged against"
             onChange={(e) => setUseCase(e.target.value)}
           />
+          <select
+            className="ps-select ps-seg"
+            value={segment}
+            onChange={(e) => setSegment(e.target.value)}
+            title="Restrict results to a segment"
+          >
+            <option value="">All segments</option>
+            {segments.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
           <div className="ps-row">
             <select className="ps-select" value={topK} onChange={(e) => setTopK(+e.target.value)}>
               {[8, 12, 20, 30].map((n) => (
