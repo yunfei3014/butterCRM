@@ -6,7 +6,7 @@ const ICON: Record<string, string> = {
   star: "⭐", folder: "📁", briefcase: "💼"
 };
 
-export function Sidebar({ objects, lists, activeObject, activeListId, onSelectObject, onSelectList, onNewObject }: any) {
+export function Sidebar({ objects, lists, activeObject, activeListId, onSelectObject, onSelectList, onNewObject, onOpenSearch }: any) {
   const session = getSession();
   return (
     <div className="sidebar">
@@ -17,6 +17,11 @@ export function Sidebar({ objects, lists, activeObject, activeListId, onSelectOb
           <div className="brand-sub">Beta Fund</div>
         </div>
       </div>
+
+      <button className="nav-item ps-nav" onClick={onOpenSearch}>
+        <span className="icon">🔍</span>
+        <span>People Search</span>
+      </button>
 
       <div className="section-label">Objects</div>
       {objects.map((o: any) => (

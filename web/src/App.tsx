@@ -6,6 +6,7 @@ import { RecordTable } from "./components/RecordTable";
 import { RecordDrawer } from "./components/RecordDrawer";
 import { NewObjectModal } from "./components/NewObjectModal";
 import { ChatPanel } from "./components/ChatPanel";
+import { PeopleSearch } from "./components/PeopleSearch";
 import { AIBanner } from "./components/AIBanner";
 import { Login } from "./components/Login";
 import { getSession, logout, isAllowedDomain } from "./lib/auth";
@@ -38,6 +39,7 @@ function AuthedApp({ session }: any) {
   // AI chat is the default entry point — opens automatically until the user dismisses the banner
   const [chatOpen, setChatOpen] = useState(localStorage.getItem("buttercrm.banner.ai.dismissed") !== "1");
   const [toast, setToast] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const reload = useCallback(() => setRefreshKey(k => k + 1), []);
   const flash = useCallback((m: string) => { setToast(m); setTimeout(() => setToast(null), 2000); }, []);
@@ -69,6 +71,7 @@ function AuthedApp({ session }: any) {
         onSelectObject={onSelectObject}
         onSelectList={onSelectList}
         onNewObject={() => setShowNewObject(true)}
+        onOpenSearch={() => setSearchOpen(true)}
       />
       <div className="main">
         <Topbar
@@ -114,6 +117,15 @@ function AuthedApp({ session }: any) {
           if (objSlug) setActiveObject(objSlug);
           setOpenRecordId(id);
           setChatOpen(false);
+        }}
+      />
+      <PeopleSearch
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onOpenRecord={(id: string) => {
+          setActiveObject("people");
+          setOpenRecordId(id);
+          setSearchOpen(false);
         }}
       />
       {toast && <div className="toast">{toast}</div>}

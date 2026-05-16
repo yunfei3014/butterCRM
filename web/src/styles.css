@@ -796,3 +796,61 @@ a { color: var(--accent); text-decoration: none; }
   text-decoration: underline;
 }
 .sidebar-user button:hover { color: var(--accent); }
+
+/* People Search drawer */
+.ps-nav { color: var(--accent); font-weight: 600; }
+.ps-form {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.ps-input {
+  width: 100%; resize: vertical;
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-size: 13px; background: var(--bg);
+}
+.ps-input:focus { outline: none; border-color: var(--accent); background: var(--panel); }
+.ps-row { display: flex; gap: 8px; align-items: center; }
+.ps-select {
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 7px 9px; font-size: 13px; background: var(--bg);
+}
+.ps-row .btn-accent { margin-left: auto; }
+.ps-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ps-chip {
+  font-size: 11.5px; padding: 4px 10px; border-radius: 999px;
+  background: var(--bg); border: 1px solid var(--border); color: var(--text-2);
+}
+.ps-chip:hover { border-color: var(--accent); color: var(--accent); }
+.ps-chip-star { background: var(--accent-soft); border-color: #f3d3bb; color: #b85816; }
+.ps-status { font-size: 12px; color: var(--text-3); padding: 2px 0; }
+.ps-card {
+  display: flex; gap: 12px; padding: 12px;
+  border: 1px solid var(--border); border-radius: 10px;
+  background: var(--panel); cursor: pointer;
+}
+.ps-card:hover { border-color: var(--accent-soft); background: var(--selected); }
+.ps-av {
+  width: 42px; height: 42px; border-radius: 50%; object-fit: cover;
+  flex-shrink: 0; border: 1px solid var(--border);
+}
+.ps-av-ph {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent-soft); color: var(--accent);
+  font-weight: 700; font-size: 15px;
+}
+.ps-cardbody { flex: 1; min-width: 0; }
+.ps-name-row { display: flex; align-items: baseline; gap: 6px; }
+.ps-name { font-weight: 600; font-size: 13.5px; }
+.ps-rank { font-size: 11px; color: var(--text-3); }
+.ps-title { font-size: 12px; color: var(--text-2); margin: 1px 0 5px; }
+.ps-reason { font-size: 12.5px; color: var(--text); margin-bottom: 6px; line-height: 1.45; }
+.ps-links { display: flex; flex-wrap: wrap; gap: 10px; font-size: 11.5px; }
+.ps-links a:hover { text-decoration: underline; }
+.ps-muted { color: var(--text-3); }
+.ps-score { flex-shrink: 0; text-align: center; width: 44px; }
+.ps-score b { display: block; font-size: 19px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.ps-score small { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); }
+.ps-hi b { color: var(--success); }
+.ps-mid b { color: var(--warning); }
+.ps-lo b { color: var(--text-3); }

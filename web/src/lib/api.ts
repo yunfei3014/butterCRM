@@ -71,5 +71,7 @@ export const api = {
   enrich: (record_id: string) => call("enrich", { record_id }),
   agent: (record_id: string, prompt: string) => call("agent", { record_id, prompt }),
   ask: (query: string, history: any[] = [], object_slug?: string) => call("ask", { query, history, object_slug }),
+  peopleSearch: (query: string, use_case?: string, top_k?: number) =>
+    call("people-search", { query, use_case, top_k }),
   bootstrap: () => call("bootstrap", {})
 };
