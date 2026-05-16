@@ -1,5 +1,27 @@
+// --- auth guard: a verified end-user JWT is required for every request ---
+// Butterbase does NOT reject unauthenticated callers at the edge, so each
+// function must enforce auth itself. ctx.user is only populated for a
+// platform-verified JWT — never trust a self-decoded token.
+// ALLOWED_AUTH_DOMAINS: optionally restrict to specific email domains.
+// Leave empty to allow any authenticated user.
+const ALLOWED_AUTH_DOMAINS: string[] = [];
+function authGuard(ctx: any): Response | null {
+  const u = ctx && ctx.user;
+  if (!u || !u.id) {
+    return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
+  }
+  if (ALLOWED_AUTH_DOMAINS.length) {
+    const domain = String(u.email || "").toLowerCase().split("@")[1] || "";
+    if (!ALLOWED_AUTH_DOMAINS.includes(domain)) {
+      return new Response(JSON.stringify({ error: "forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
+    }
+  }
+  return null;
+}
+
 // AI agent: drafts emails, follow-ups, summaries from record context.
 export async function handler(req: Request, ctx: any): Promise<Response> {
+  const _ag = authGuard(ctx); if (_ag) return _ag;
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   const { record_id, prompt, model = "anthropic/claude-3.5-sonnet" } = await req.json();
   if (!record_id || !prompt) return new Response(JSON.stringify({ error: "record_id and prompt required" }), { status: 400 });
